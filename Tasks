@@ -1,5 +1,5 @@
--  Load Data on the github
-- Search a list of simple strategies using multiple indicators ( easily computable)
+-  Load Data on the github **Done**
+- Search a list of simple strategies using multiple indicators ( easily computable) **Done**
 - Thanks to a script compute all needed indicators
 - Rewrite all strategies
 - Find a way to encode all strategies in vector ( strategy embedding ) ?
