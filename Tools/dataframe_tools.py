@@ -1,6 +1,4 @@
 import pandas as pd
-import numpy as np
-
 
 def opener_dataframe(PATH:str="../Data/ETHUSDT-5m.zip"):
     df = pd.read_csv(PATH).drop("Unnamed: 0",axis=1)
