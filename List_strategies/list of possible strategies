@@ -1,0 +1,253 @@
+Strategies list :
+-----------------
+Moving Average Crossover Strategy:
+Buy when the short-term moving average crosses above the long-term moving average and sell when the short-term moving average crosses below the long-term moving average.
+
+Trend Following Strategy:
+Buy in an uptrend (higher highs and higher lows) and sell/short in a downtrend (lower highs and lower lows) using trendlines, moving averages, or other trend indicators.
+
+Breakout Strategy:
+Buy when the price breaks above a significant resistance level or sell when it breaks below a significant support level.
+
+Mean Reversion Strategy:
+Buy when the price is below its historical average and sell when it is above its historical average, using indicators like Bollinger Bands or RSI.
+
+RSI Divergence Strategy:
+Look for divergences between the RSI and price movement to identify potential trend reversals.
+
+MACD-Histogram Strategy:
+Use the MACD histogram to identify changes in momentum and potential trend reversals.
+
+Stochastic Oversold/Overbought Strategy:
+Buy when the Stochastic oscillator is in oversold territory (below 20) and sell when it is in overbought territory (above 80).
+
+Bollinger Bands Squeeze Strategy:
+Enter trades when Bollinger Bands contract, indicating low volatility, and exit when they expand, indicating increased volatility.
+
+Ichimoku Cloud Trend Strategy:
+Buy when the price is above the Ichimoku Cloud and the Cloud is green, indicating a bullish trend. Sell when the price is below the Cloud and the Cloud is red, indicating a bearish trend.
+
+Parabolic SAR Reversal Strategy:
+Buy when the Parabolic SAR dots move below the price, indicating a bullish reversal, and sell when the dots move above the price, indicating a bearish reversal.
+
+Three Moving Averages Crossover Strategy:
+Use three moving averages (short, medium, and long-term) and enter trades based on their crossovers.
+
+Fibonacci Retracement Strategy:
+Identify potential support and resistance levels using Fibonacci retracement levels and trade based on price reactions at those levels.
+
+Average True Range Volatility Strategy:
+Adjust position sizes or set stop-loss levels based on the Average True Range (ATR) to account for market volatility.
+
+Pivot Points Strategy:
+Use daily pivot points to identify potential support and resistance levels and trade based on price action around these levels.
+
+Volume Confirmation Strategy:
+Look for volume surges to confirm price movements and potential trend changes.
+
+Candlestick Patterns Strategy:
+Identify bullish or bearish candlestick patterns (e.g., doji, hammer, engulfing) to enter or exit trades.
+
+Moving Average Envelope Strategy:
+Use two moving averages (one as the center and the other as the envelope) to identify potential overbought and oversold conditions.
+
+Williams %R Overbought/Oversold Strategy:
+Buy when Williams %R is in oversold territory (below -80) and sell when it is in overbought territory (above -20).
+
+Double Top/Bottom Strategy:
+Identify double top or bottom patterns and trade based on their confirmation.
+
+Elliott Wave Strategy:
+Use Elliott Wave Theory to identify wave patterns and trade based on potential wave counts and patterns.
+
+ADX Trend Strength Strategy:
+Buy when the ADX (Average Directional Index) is above a specific threshold (e.g., 25) and the +DI line crosses above the -DI line. Sell when the ADX falls below the threshold.
+
+Heiken Ashi Trend Strategy:
+Trade based on the color of Heiken Ashi candles, buying in an uptrend (green candles) and selling/shorting in a downtrend (red candles).
+
+Donchian Channel Breakout Strategy:
+Buy when the price breaks above the upper Donchian channel line and sell when it breaks below the lower Donchian channel line.
+
+Elder's Triple Screen Strategy:
+Combine multiple timeframes (e.g., daily, weekly, and monthly) to identify the overall trend and potential entry points.
+
+Hull Moving Average Strategy:
+Use the Hull Moving Average for smoothing, and trade based on crossovers with the price or other moving averages.
+
+Keltner Channels Breakout Strategy:
+Buy when the price breaks above the upper Keltner Channel line and sell when it breaks below the lower Keltner Channel line.
+
+Chandelier Exit Strategy:
+Use the Chandelier Exit indicator as a trailing stop-loss, adjusting the stop level based on market volatility.
+
+Elder Impulse System Strategy:
+Trade based on the combination of EMA crossovers and the color of the MACD histogram.
+
+Commodity Channel Index (CCI) Reversal Strategy:
+Buy when CCI crosses above -100 from below and sell when CCI crosses below +100 from above.
+
+Ichimoku Kumo Breakout Strategy:
+Buy when the price breaks above the Ichimoku Cloud (Kumo) and sell when it breaks below the Cloud.
+
+Squeeze Momentum Indicator (SMI) Strategy:
+Trade based on SMI crossovers and identify periods of low volatility (squeeze) and potential breakouts.
+
+SuperTrend Strategy:
+Use the SuperTrend indicator as a trailing stop-loss, adjusting the stop level based on price movements.
+
+Elder-Ray Bull and Bear Power Strategy:
+Trade based on the Bull Power and Bear Power histograms crossing above or below the zero line.
+
+Time Series Forecast Strategy:
+Use the Time Series Forecast indicator to predict future price movements and enter trades accordingly.
+
+Guppy Multiple Moving Averages (GMMA) Strategy:
+Identify trend strength and potential reversals using multiple groups of exponential moving averages.
+
+Bressert Double Smoothed Stochastic Strategy:
+Trade based on crossovers of the Double Smoothed Stochastic indicator and overbought/oversold conditions.
+
+Detrended Price Oscillator (DPO) Strategy:
+Buy when the DPO crosses above zero and sell when it crosses below zero, indicating potential trend changes.
+
+Stochastic RSI Strategy:
+Combine the Stochastic oscillator and the RSI to identify overbought and oversold conditions for potential reversals.
+
+Ehler's Fisher Transform Strategy:
+Use the Fisher Transform indicator to identify turning points in price and enter trades accordingly.
+
+Percentage Price Oscillator (PPO) Strategy:
+Trade based on crossovers of the PPO and signal line, indicating potential trend changes.
+
+Indicators related to the strategies :
+--------------------------------------
+Moving Average Crossover Strategy:
+Moving Averages (SMA or EMA)
+
+Trend Following Strategy:
+Trendlines
+Moving Averages (SMA or EMA)
+MACD
+Parabolic SAR
+
+Breakout Strategy:
+Support and Resistance Levels
+Bollinger Bands
+Donchian Channel
+
+Mean Reversion Strategy:
+Bollinger Bands
+RSI
+
+RSI Divergence Strategy:
+Relative Strength Index (RSI)
+
+MACD-Histogram Strategy:
+Moving Averages (SMA or EMA)
+MACD
+
+Stochastic Oversold/Overbought Strategy:
+Stochastic Oscillator
+
+Bollinger Bands Squeeze Strategy:
+Bollinger Bands
+
+Ichimoku Cloud Trend Strategy:
+Ichimoku Cloud
+
+Parabolic SAR Reversal Strategy:
+Parabolic SAR
+
+Three Moving Averages Crossover Strategy:
+Moving Averages (SMA or EMA)
+
+Fibonacci Retracement Strategy:
+Fibonacci Retracements
+
+Average True Range Volatility Strategy:
+Average True Range (ATR)
+
+Pivot Points Strategy:
+Pivot Points
+
+Volume Confirmation Strategy:
+Volume Indicators (e.g., On-Balance Volume, Volume Weighted Average Price)
+
+Candlestick Patterns Strategy:
+Candlestick Patterns
+
+Moving Average Envelope Strategy:
+Moving Averages (SMA or EMA)
+
+Williams %R Overbought/Oversold Strategy:
+Williams %R
+
+Elliott Wave Strategy:
+Elliott Wave Theory
+
+Percentage Price Oscillator (PPO) Strategy:
+Percentage Price Oscillator (PPO)
+
+ADX Trend Strength Strategy:
+Average Directional Index (ADX)
+Directional Movement Index (+DI and -DI)
+
+Heiken Ashi Trend Strategy:
+Heiken Ashi Candles
+
+Donchian Channel Breakout Strategy:
+Donchian Channel
+
+Elder's Triple Screen Strategy:
+Multiple Timeframes Analysis
+
+Hull Moving Average Strategy:
+Hull Moving Average
+
+Keltner Channels Breakout Strategy:
+Keltner Channels
+
+Chandelier Exit Strategy:
+Chandelier Exit
+
+Elder Impulse System Strategy:
+EMA
+MACD
+
+Commodity Channel Index (CCI) Reversal Strategy:
+Commodity Channel Index (CCI)
+
+Ichimoku Kumo Breakout Strategy:
+Ichimoku Cloud
+
+Squeeze Momentum Indicator (SMI) Strategy:
+Squeeze Momentum Indicator (SMI)
+
+SuperTrend Strategy:
+SuperTrend Indicator
+
+Elder-Ray Bull and Bear Power Strategy:
+Elder-Ray Indicator (Bull and Bear Power)
+
+Time Series Forecast Strategy:
+Time Series Forecast Indicator
+
+Guppy Multiple Moving Averages (GMMA) Strategy:
+Multiple Moving Averages (SMA or EMA)
+
+Bressert Double Smoothed Stochastic Strategy:
+Double Smoothed Stochastic
+
+Detrended Price Oscillator (DPO) Strategy:
+Detrended Price Oscillator (DPO)
+
+Stochastic RSI Strategy:
+Stochastic Oscillator
+Relative Strength Index (RSI)
+
+Ehler's Fisher Transform Strategy:
+Fisher Transform Indicator
+
+Percentage Price Oscillator (PPO) Strategy:
+Percentage Price Oscillator (PPO)
