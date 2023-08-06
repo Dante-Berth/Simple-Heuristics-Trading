@@ -2,6 +2,7 @@
 - Search a list of simple strategies using multiple indicators ( easily computable) **Done**
 - Thanks to a script compute all needed indicators
 - Rewrite all strategies
+- Feature Engineering (Wavelet and CEEMDAN)
 - Find a way to encode all strategies in vector ( strategy embedding ) ?
 - Create a simple Neural Network and search if any strategy decreases the loss function given the data
 
