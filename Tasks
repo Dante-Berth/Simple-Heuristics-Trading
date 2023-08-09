@@ -1,5 +1,6 @@
 -  Load Data on the github **Done**
 - Search a list of simple strategies using multiple indicators ( easily computable) **Done**
+- Fisher Information **To Run**
 - Create a better training loop
 - Thanks to a script compute all needed indicators
 - Rewrite all strategies
