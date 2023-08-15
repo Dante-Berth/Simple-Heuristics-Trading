@@ -25,19 +25,19 @@ class super_lstm(tf.keras.layers.Layer):
         self.lstm_1 = tf.keras.layers.LSTM(units=64,return_sequences=True,activation="tanh")
         self.lstm_2 = tf.keras.layers.LSTM(units=32,return_sequences=True,activation="tanh")
         self.lstm_3 = tf.keras.layers.LSTM(units=16,return_sequences=True,activation="tanh")
-        self.lstm_4 = tf.keras.layers.LSTM(units=8,return_sequences=True,activation="tanh")
+        self.lstm_4 = tf.keras.layers.LSTM(units=16,return_sequences=True,activation="tanh")
 
         self.cnn_1 = tf.keras.layers.Conv1D(filters = 64, kernel_size=4,strides=2)
         self.cnn_2 = tf.keras.layers.Conv1D(filters=32, kernel_size=4,strides=2)
-        self.cnn_3 = tf.keras.layers.Conv1D(filters=16 , kernel_size=2,strides=1)
+        self.cnn_3 = tf.keras.layers.Conv1D(filters=8 , kernel_size=2,strides=1)
 
         self.mlp_1 = tf.keras.layers.Dense(units = 64,activation="tanh")
         self.mlp_2 = tf.keras.layers.Dense(units=32, activation="tanh")
-        self.mlp_3 = tf.keras.layers.Dense(units=16, activation="tanh")
+        self.mlp_3 = tf.keras.layers.Dense(units=32, activation="tanh")
 
         self.mlp_4 = tf.keras.layers.Dense(units=64)
         self.mlp_5 = tf.keras.layers.Dense(units=32)
-        self.mlp_6 = tf.keras.layers.Dense(units=16)
+        self.mlp_6 = tf.keras.layers.Dense(units=32)
         self.LSTM_SIZE = 32
         self.dropout = tf.keras.layers.Dropout(0.3)
 
@@ -49,7 +49,7 @@ class super_lstm(tf.keras.layers.Layer):
 
         self.decoder_1 = tf.keras.layers.RepeatVector(32)
         self.decoder_2 = tf.keras.layers.LSTM(32,return_sequences=True)
-        self.decoder_3 = tf.keras.layers.TimeDistributed(tf.keras.layers.Dense(32))
+        self.decoder_3 = tf.keras.layers.TimeDistributed(tf.keras.layers.Dense(64))
         self.decoder_4 = tf.keras.layers.Flatten()
         self.decoder_5 = tf.keras.layers.Dense(1)
         self.sign_log_1 = Signlog()
