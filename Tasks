@@ -1,7 +1,8 @@
 -  Load Data on the github **Done**
 - Search a list of simple strategies using multiple indicators ( easily computable) **Done**
 - Fisher Information **To Run**
-- Adding new features from scipy
+- Add new features from scipy ** Done **
+- Add CapsuleNet https://github.com/jindongwang/Pytorch-CapsuleNet
 - Create a better training loop
 - Thanks to a script compute all needed indicators
 - Rewrite all strategies
