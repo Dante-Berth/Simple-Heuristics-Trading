@@ -3,6 +3,7 @@ from simple_heuritic_tradings.indicators.list_indicators import *
 from simple_heuritic_tradings.utils.utils_df import *
 from simple_heuritic_tradings.model.model_lstm import super_lstm
 import tensorflow as tf
+from scipy import signal
 PATH = r"C:\Users\alexw\Documents\Git\AI-WORK\Advanced-Trading\simple_heuritic_tradings\Data\ETHUSDT-5m.zip"
 dataframe = opener_dataframe(PATH)
 windows = 2
@@ -17,7 +18,7 @@ dataframe['MACD_Line'], dataframe['Signal_Line'], dataframe['MACD_Histogram'] = 
 dataframe['Upper_Band'], dataframe['Lower_Band'] = compute_bollinger_bands(dataframe, window=windows, num_std=2)
 
 
-columns = ['open_price']#,f'SMA_{windows}',f'EMA_{windows}']
+columns = ['open_price']
 data_x = dataframe[columns]
 print(data_x.head(5))
 
@@ -31,10 +32,15 @@ print(data_x.head())
 X = []
 Y = []
 window_size = 16
+b, a = signal.butter(8, 0.125)
 from tqdm import tqdm
-for i in tqdm(range(window_size+10,500)):#len(data_x)-100)):
+for i in tqdm(range(window_size+10,len(data_x)-100)):#500)):
     if (data_x.iloc[i-window_size:i]).isnull().values.any() == False:
-        X.append(np.asarray(data_x.iloc[i-window_size:i].to_numpy()))
+        windows = data_x.iloc[i-window_size:i].to_numpy()
+        open_price_signal = dataframe["open_price"].iloc[i - window_size:i].values
+        open_price_new_signal = signal.filtfilt(b, a, open_price_signal, padlen=window_size-1)
+        concatenated_array = np.column_stack((open_price_signal, open_price_new_signal))
+        X.append(np.asarray(concatenated_array))
         Y.append(np.asarray(dataframe["5m_rebuilt_signal_sym7_12_4_Y_area_24_2.5"].iloc[i]))
 
 X = np.array(X)
