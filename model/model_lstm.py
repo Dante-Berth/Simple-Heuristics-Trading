@@ -19,6 +19,22 @@ class Signlog(tf.keras.layers.Layer):
 
     def call(self, inputs):
         return tf.math.sign(inputs) * tf.math.log(tf.keras.activations.relu(self.weight)*tf.math.abs(inputs) + 1)
+
+def transformer_encoder(inputs, head_size, num_heads, ff_dim, dropout=0):
+    # Attention and Normalization
+    x = tf.layers.MultiHeadAttention(
+        key_dim=head_size, num_heads=num_heads, dropout=dropout
+    )(inputs, inputs)
+    x = tf.layers.Dropout(dropout)(x)
+    x = tf.layers.LayerNormalization(epsilon=1e-6)(x)
+    res = x + inputs
+
+    # Feed Forward Part
+    x = tf.layers.Conv1D(filters=ff_dim, kernel_size=1, activation="relu")(res)
+    x = tf.layers.Dropout(dropout)(x)
+    x = tf.layers.Conv1D(filters=inputs.shape[-1], kernel_size=1)(x)
+    x = tf.layers.LayerNormalization(epsilon=1e-6)(x)
+    return x + res
 class super_lstm(tf.keras.layers.Layer):
     def __init__(self):
         super(super_lstm, self).__init__()
