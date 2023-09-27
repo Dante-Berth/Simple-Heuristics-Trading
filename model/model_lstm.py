@@ -20,21 +20,31 @@ class Signlog(tf.keras.layers.Layer):
     def call(self, inputs):
         return tf.math.sign(inputs) * tf.math.log(tf.keras.activations.relu(self.weight)*tf.math.abs(inputs) + 1)
 
-def transformer_encoder(inputs, head_size, num_heads, ff_dim, dropout=0):
-    # Attention and Normalization
-    x = tf.layers.MultiHeadAttention(
-        key_dim=head_size, num_heads=num_heads, dropout=dropout
-    )(inputs, inputs)
-    x = tf.layers.Dropout(dropout)(x)
-    x = tf.layers.LayerNormalization(epsilon=1e-6)(x)
-    res = x + inputs
 
-    # Feed Forward Part
-    x = tf.layers.Conv1D(filters=ff_dim, kernel_size=1, activation="relu")(res)
-    x = tf.layers.Dropout(dropout)(x)
-    x = tf.layers.Conv1D(filters=inputs.shape[-1], kernel_size=1)(x)
-    x = tf.layers.LayerNormalization(epsilon=1e-6)(x)
-    return x + res
+class transformer_encoder(tf.keras.layers.Layer):
+    def __init__(self,head_size,num_heads,ff_dim,dropout=0.15,*args,**kwargs):
+        super(transformer_encoder, self).__init__(*args,**kwargs)
+        self.multiheadattention = tf.keras.layers.MultiHeadAttention(
+        key_dim=head_size, num_heads=num_heads, dropout=dropout
+                )
+        self.dropout_1 = tf.keras.layers.Dropout(dropout)
+        self.layernormalization_1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
+        self.feedforwardconv1d_1 = tf.keras.layers.Conv1D(filters=ff_dim, kernel_size=1,activation="relu")
+        self.dropout_2 = tf.keras.layers.Dropout(dropout)
+        self.feedforwardconv1d_2 = tf.keras.layers.Conv1D(filters=ff_dim, kernel_size=1,activation="relu")
+        self.layernormalization_2 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
+
+    def call(self, inputs, *args, **kwargs):
+        x = self.multiheadattention(inputs,inputs)
+        x = self.dropout_1(x)
+        x = self.layernormalization_1(x)
+        res = x + inputs
+        x = self.feedforwardconv1d_1(x)
+        x = self.dropout_2(x)
+        x = self.feedforwardconv1d_2(x)
+        x = self.layernormalization_2(x)
+        return x + res
+
 class super_lstm(tf.keras.layers.Layer):
     def __init__(self):
         super(super_lstm, self).__init__()
@@ -73,6 +83,17 @@ class super_lstm(tf.keras.layers.Layer):
         self.sign_log_3 = Signlog()
 
         self.mlp_7 = tf.keras.layers.Dense(1)
+        self.mlp_8 = tf.keras.layers.Dense(16,activation="tanh")
+        self.mlp_9 = tf.keras.layers.Dense(1)
+
+        self.transformer_encoder_1 = transformer_encoder(num_heads=6,head_size=4,ff_dim=6)
+        self.transformer_encoder_2 = transformer_encoder(num_heads=6, head_size=4, ff_dim=6)
+        self.transformer_encoder_3 = transformer_encoder(num_heads=6, head_size=4, ff_dim=6)
+
+        self.cnn_1_2 = tf.keras.layers.Conv1D(filters=64, kernel_size=4, strides=2)
+        self.cnn_2_2 = tf.keras.layers.Conv1D(filters=32, kernel_size=4, strides=2)
+        self.cnn_3_2 = tf.keras.layers.Conv1D(filters=8, kernel_size=2, strides=1)
+
     def call(self,input):
         x_1 = self.lstm_1(input)
         x_1 = self.lstm_2(x_1)
@@ -106,8 +127,15 @@ class super_lstm(tf.keras.layers.Layer):
         y_2 = self.decoder_4(y_2)
         y_2 = self.decoder_5(y_2)
 
+        x_transformer = self.transformer_encoder_1(input)
+        x_transformer = self.transformer_encoder_2(x_transformer)
+        x_transformer = self.transformer_encoder_3(x_transformer)
+        x_transformer = self.cnn_1_2(x_transformer)
+        x_transformer = self.cnn_2_2(x_transformer)
+        x_transformer = self.cnn_3_2(x_transformer)
+        x_transformer = tf.keras.layers.Flatten()(x_transformer)
+        x_transformer = self.mlp_9(x_transformer)
 
-
-        x_5 = x_4 + y_2
+        x_5 = x_4 + y_2 + x_transformer
         return x_5
 
