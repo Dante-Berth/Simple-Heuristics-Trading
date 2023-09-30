@@ -1,4 +1,5 @@
 import tensorflow as tf
+from simple_heuritic_tradings.model.tsmixer import tsmixer_res_block
 @tf.keras.utils.register_keras_serializable()
 class Signlog(tf.keras.layers.Layer):
     """
@@ -94,6 +95,16 @@ class super_lstm(tf.keras.layers.Layer):
         self.cnn_2_2 = tf.keras.layers.Conv1D(filters=32, kernel_size=4, strides=2)
         self.cnn_3_2 = tf.keras.layers.Conv1D(filters=8, kernel_size=2, strides=1)
 
+        self.tsmixer_res_block_1 = tsmixer_res_block(activation="gelu", dropout=0.3, ff_dim=16)
+        self.tsmixer_res_block_2 = tsmixer_res_block(activation="gelu", dropout=0.3, ff_dim=8)
+        self.tsmixer_res_block_3 = tsmixer_res_block(activation="gelu", dropout=0.3, ff_dim=4)
+
+        self.cnn_1_3 = tf.keras.layers.Conv1D(filters=64, kernel_size=4, strides=2)
+        self.cnn_2_3 = tf.keras.layers.Conv1D(filters=32, kernel_size=4, strides=2)
+        self.cnn_3_3 = tf.keras.layers.Conv1D(filters=8, kernel_size=2, strides=1)
+
+        self.mlp_10 = tf.keras.layers.Dense(1)
+
     def call(self,input):
         x_1 = self.lstm_1(input)
         x_1 = self.lstm_2(x_1)
@@ -136,6 +147,15 @@ class super_lstm(tf.keras.layers.Layer):
         x_transformer = tf.keras.layers.Flatten()(x_transformer)
         x_transformer = self.mlp_9(x_transformer)
 
-        x_5 = x_4 + y_2 + x_transformer
+        x_tsmixer = self.tsmixer_res_block_1(input)
+        x_tsmixer = self.tsmixer_res_block_2(x_tsmixer)
+        x_tsmixer = self.tsmixer_res_block_3(x_tsmixer)
+        x_tsmixer = self.cnn_1_3(x_tsmixer)
+        x_tsmixer = self.cnn_2_3(x_tsmixer)
+        x_tsmixer = self.cnn_3_3(x_tsmixer)
+        x_tsmixer = tf.keras.layers.Flatten()(x_tsmixer)
+        x_tsmixer = self.mlp_10(x_tsmixer)
+
+        x_5 = x_4 + y_2 + x_transformer + x_tsmixer
         return x_5
 

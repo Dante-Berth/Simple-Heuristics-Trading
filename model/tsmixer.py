@@ -119,17 +119,12 @@ def res_block(inputs, norm_type, activation, dropout, ff_dim):
 
 @tf.keras.utils.register_keras_serializable(name="tsmixer_res_block")
 class tsmixer_res_block(tf.keras.layers.Layer):
-  def __init__(self,norm_type, activation, dropout, ff_dim,**kwargs):
+  def __init__(self, activation, dropout, ff_dim,**kwargs):
     super(tsmixer_res_block,self).__init__(**kwargs)
-    self.norm_type = norm_type
     self.activation = activation
     self.dropout = dropout
     self.ff_dim = ff_dim
-    self.norm = (
-            tf.keras.layers.LayerNormalization
-            if norm_type == 'L'
-            else tf.keras.layers.BatchNormalization
-        )
+    self.norm = tf.keras.layers.LayerNormalization(axis=[-2, -1])
     self.dense_temporal_projection = None
     self.dropout = tf.keras.layers.Dropout(dropout)
     self.dense_time_mixing = None
@@ -138,7 +133,6 @@ class tsmixer_res_block(tf.keras.layers.Layer):
   def get_config(self):
     config = super(tsmixer_res_block, self).get_config()
     config.update({
-      'norm_type': self.norm_type,
       'activation': self.activation,
       'dropout': self.dropout,
       'ff_dim': self.ff_dim
@@ -150,7 +144,7 @@ class tsmixer_res_block(tf.keras.layers.Layer):
     self.dense_time_mixing = tf.keras.layers.Dense(self.ff_dim, activation=self.activation)
   def call(self, inputs,*args,**kwargs):
 
-    x = self.norm(axis=[-2, -1])(inputs)
+    x = self.norm(inputs)
     x = tf.transpose(x, perm=[0, 2, 1])  # [Batch, Channel, Input Length]
     x = self.dense_temporal_projection(x)
     x = tf.transpose(x, perm=[0, 2, 1])  # [Batch, Input Length, Channel]
@@ -158,7 +152,7 @@ class tsmixer_res_block(tf.keras.layers.Layer):
     res = x + inputs
 
     # Feature Linear
-    x = self.norm(axis=[-2, -1])(res)
+    x = self.norm(res)
     x = self.dense_time_mixing(x)  # [Batch, Input Length, FF_Dim]
     x = self.dropout(x)
     x = self.dense_feature_mixing(x)  # [Batch, Input Length, Channel]
@@ -193,7 +187,7 @@ def build_model(
 if __name__ == "__main__":
   x = tf.ones((12,24,36))
   inputs =  tf.keras.layers.Input(shape=(24, 36))
-  tsmixer = tsmixer_res_block(norm_type="L", activation="gelu", dropout=0.3, ff_dim=15)
+  tsmixer = tsmixer_res_block(activation="gelu", dropout=0.3, ff_dim=15)
   print(tsmixer(x).shape)
   y = tsmixer(inputs)
 
