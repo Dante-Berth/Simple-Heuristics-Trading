@@ -4,7 +4,7 @@
 - Add new features from scipy ** Done **
 - Add CapsuleNet https://github.com/jindongwang/Pytorch-CapsuleNet
 - Create a better training loop
-- Thanks to a script compute all needed indicators
+- Thanks to a script compute all needed indicators **Done thanks to a lib**
 - Rewrite all strategies
 - Feature Engineering (Wavelet and CEEMDAN)
 - Find a way to encode all strategies in vector ( strategy embedding ) ?
