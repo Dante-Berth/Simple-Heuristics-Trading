@@ -34,6 +34,24 @@ print(data_x.head(5))
 # data_x = (data_x - data_x.shift(1))/(data_x.shift(1))*100
 
 print(data_x.head())
+from ta.momentum import KAMAIndicator
+dataframe['close_ema'] = dataframe['close_x'].ewm(span=1, adjust=False).mean()
+dataframe["KAMAIndicator"] = KAMAIndicator(dataframe["close_ema"]).kama()
+
+dataframe['high_ema'] = dataframe['high'].ewm(span=1, adjust=False).mean()
+dataframe['low_ema'] = dataframe['low'].ewm(span=1, adjust=False).mean()
+
+from ta.momentum import AwesomeOscillatorIndicator
+dataframe["AwesomeOscillatorIndicator"] = AwesomeOscillatorIndicator(high=dataframe['high_ema'],low=dataframe['low_ema']).awesome_oscillator()
+
+from ta.volatility import BollingerBands
+indicator_bb = BollingerBands(close=dataframe["low_ema"],window=20,window_dev=2)
+dataframe['bb_bbm'] = indicator_bb.bollinger_mavg()
+dataframe['bb_bbh'] = indicator_bb.bollinger_hband()
+dataframe['bb_bbl'] = indicator_bb.bollinger_lband()
+
+columns = ['open_price_x',"high","low","AwesomeOscillatorIndicator","bb_bbm",'bb_bbh','bb_bbl',"KAMAIndicator"]
+data_x = dataframe[columns]
 
 #Creation des dataframes
 X = []
@@ -44,13 +62,21 @@ from tqdm import tqdm
 for i in tqdm(range(window_size+10,len(data_x)-100)):#500)): #
     if (data_x.iloc[i-window_size:i]).isnull().values.any() == False:
         windows = data_x.iloc[i-window_size:i].to_numpy()
-        open_price_signal = dataframe["open_price_x"].iloc[i - window_size:i].values
-        high_price_signal = dataframe["high"].iloc[i - window_size:i].values
-        low_price_signal = dataframe["low"].iloc[i - window_size:i].values
+        open_price_signal = data_x["open_price_x"].iloc[i - window_size:i].values
+        high_price_signal = data_x["high"].iloc[i - window_size:i].values
+        low_price_signal = data_x["low"].iloc[i - window_size:i].values
+        price_kamai = data_x["KAMAIndicator"].iloc[i - window_size:i].values
+        price_awesome_oscillator = data_x["AwesomeOscillatorIndicator"].iloc[i - window_size:i].values
+        price_bb_bbm = data_x["bb_bbm"].iloc[i - window_size:i].values
+        price_bb_bbh = data_x["bb_bbh"].iloc[i - window_size:i].values
+        price_bb_bbl = data_x["bb_bbl"].iloc[i - window_size:i].values
         open_price_new_signal = signal.filtfilt(b, a, open_price_signal, padlen=window_size-1)
         high_price_new_signal = signal.filtfilt(b, a, high_price_signal, padlen=window_size - 1)
         low_price_new_signal = signal.filtfilt(b, a, low_price_signal, padlen=window_size - 1)
-        concatenated_array = np.column_stack((open_price_signal, high_price_signal,low_price_signal,low_price_new_signal,high_price_new_signal,open_price_new_signal))
+        concatenated_array = np.column_stack((open_price_signal, high_price_signal,low_price_signal,
+                                              price_kamai, price_awesome_oscillator, price_bb_bbm, price_bb_bbh,
+                                              price_bb_bbl,
+                                              low_price_new_signal,high_price_new_signal,open_price_new_signal))
         X.append(np.asarray(concatenated_array))
         Y.append(np.asarray(dataframe["5m_rebuilt_signal_sym7_12_4_Y_area_24_2.5"].iloc[i]))
 
@@ -62,6 +88,7 @@ X_train = X[:-SPLIT]
 X_test = X[-SPLIT:]
 Y_train = Y[:-SPLIT]
 Y_test = Y[-SPLIT:]
+
 lstm = super_lstm()
 dain_layer = DAIN_Layer(mode='full', input_dim=np.shape(X_train[0])[-1])
 inputs = tf.keras.layers.Input(shape=np.shape(X_train[0]))
@@ -75,45 +102,118 @@ model.compile(optimizer='adam', loss='mse')
 
 es = tf.keras.callbacks.EarlyStopping(monitor="val_loss", mode="min", patience=10)  # early stopping to prevent overfitting
 
-
-# https://stackoverflow.com/questions/67940697/hessian-matrix-of-a-keras-model-with-tf-hessians
-class FisherInformationCallback(tf.keras.callbacks.Callback):
-    def __init__(self, validation_data):
-        super().__init__()
-        self.validation_data = validation_data
-
-    def on_epoch_end(self, epoch, logs=None):
-        # Create a GradientTape to watch the trainable variables
-        with tf.GradientTape(persistent=True) as hessian_tape:
-            # Another GradientTape to compute the gradients
-            with tf.GradientTape() as gradient_tape:
-                gradient_tape.watch(self.model.trainable_variables)
-                # Compute loss
-                predictions = self.model(self.validation_data[0])
-                loss = tf.reduce_mean(tf.keras.losses.mean_squared_error(self.validation_data[1], predictions))
-
-            # Compute first-order gradients
-            gradients = gradient_tape.gradient(loss, self.model.trainable_variables)
-
-        # Compute second-order gradients (Hessian)
-        hessian = [hessian_tape.jacobian(g, w) for g, w in zip(gradients, self.model.trainable_variables)]
-
-        # Fisher Information is the negative expectation of the Hessian of the log-likelihood.
-        # In practice, you would need to multiply by -1 and take the expectation over your data distribution
-        fisher_information = [-h for h in hessian]
-
-        # You can then log, save, or otherwise use the 'fisher_information'
-        # For example, print the Fisher Information for the first layer
-        print("Fisher Information for first layer at epoch", epoch, ":", fisher_information[0])
-
-
-
-# Usage remains the same
 validation_data=(X_test, Y_test)
-#fisher_callback = FisherInformationCallback(validation_data)
+import plotly.express as px
 callbacks = [es]
+epochs = 7
+dict_test = {"X_test":X_test,"Y_test":Y_test}
+nb_test = len(X_test)
+import plotly.graph_objects as go
+for e in range(epochs):
+    history = model.fit(x=X_train, y=Y_train,verbose = 1,batch_size=64)
+    model.evaluate(x=X_test, y=Y_test)
+    Y_pred =[]
+    Y_true = []
+    for i in tqdm(range(nb_test//10)):
+        Y_pred.append(float(model.predict(np.expand_dims(dict_test["X_test"][i], axis=0),verbose=0)[0,0]))
+        Y_true.append(dict_test["Y_test"][i])
 
-history = model.fit(x=X_train, y=Y_train, epochs=10,
-                    validation_data=validation_data,
-                    callbacks=callbacks, verbose=1, shuffle=False, batch_size = 32)
-Y_pred_test = model.predict(X_test)
+    fig = go.Figure()
+    t = np.linspace(0,1,nb_test)
+    fig.add_trace(go.Scatter(x=t,
+                             y=Y_pred,
+                             mode='lines',
+                             name='Prediction Signal'))
+
+    fig.add_trace(go.Scatter(x=t,
+                             y=Y_true,
+                             mode='lines',
+                             name='True Signal'))
+
+
+    fig.update_layout(title=f'Comparison of Predicted and True Signals ',
+                      xaxis_title='Time Index',
+                      yaxis_title='Y',
+                      legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01))
+
+    fig.show()
+
+# print the network
+model.summary()
+model.compile(optimizer='adam', loss='mae')
+
+es = tf.keras.callbacks.EarlyStopping(monitor="val_loss", mode="min", patience=10)  # early stopping to prevent overfitting
+
+validation_data=(X_test, Y_test)
+import plotly.express as px
+callbacks = [es]
+epochs = 7
+dict_test = {"X_test":X_test,"Y_test":Y_test}
+nb_test = len(X_test)
+for e in range(epochs):
+    history = model.fit(x=X_train, y=Y_train,verbose = 1,batch_size=64)
+    model.evaluate(x=X_test, y=Y_test)
+    Y_pred =[]
+    Y_true = []
+    for i in tqdm(range(nb_test//10)):
+        Y_pred.append(float(model.predict(np.expand_dims(dict_test["X_test"][i], axis=0),verbose=0)[0,0]))
+        Y_true.append(dict_test["Y_test"][i])
+
+    fig = go.Figure()
+    t = np.linspace(0,1,nb_test)
+    fig.add_trace(go.Scatter(x=t,
+                             y=Y_pred,
+                             mode='lines',
+                             name='Prediction Signal'))
+
+    fig.add_trace(go.Scatter(x=t,
+                             y=Y_true,
+                             mode='lines',
+                             name='True Signal'))
+
+
+    fig.update_layout(title=f'Comparison of Predicted and True Signals ',
+                      xaxis_title='Time Index,MAE',
+                      yaxis_title='Y',
+                      legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01))
+
+    fig.show()
+
+model.compile(optimizer='adam', loss=tf.keras.losses.LogCosh())
+
+es = tf.keras.callbacks.EarlyStopping(monitor="val_loss", mode="min", patience=10)  # early stopping to prevent overfitting
+
+validation_data=(X_test, Y_test)
+import plotly.express as px
+callbacks = [es]
+epochs = 7
+dict_test = {"X_test":X_test,"Y_test":Y_test}
+nb_test = len(X_test)
+for e in range(epochs):
+    history = model.fit(x=X_train, y=Y_train,verbose = 1,batch_size=64)
+    model.evaluate(x=X_test, y=Y_test)
+    Y_pred =[]
+    Y_true = []
+    for i in tqdm(range(nb_test//10)):
+        Y_pred.append(float(model.predict(np.expand_dims(dict_test["X_test"][i], axis=0),verbose=0)[0,0]))
+        Y_true.append(dict_test["Y_test"][i])
+
+    fig = go.Figure()
+    t = np.linspace(0,1,nb_test)
+    fig.add_trace(go.Scatter(x=t,
+                             y=Y_pred,
+                             mode='lines',
+                             name='Prediction Signal'))
+
+    fig.add_trace(go.Scatter(x=t,
+                             y=Y_true,
+                             mode='lines',
+                             name='True Signal'))
+
+
+    fig.update_layout(title=f'Comparison of Predicted and True Signals ',
+                      xaxis_title='Time Index,LogCosh',
+                      yaxis_title='Y',
+                      legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01))
+
+    fig.show()
