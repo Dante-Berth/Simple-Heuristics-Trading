@@ -11,6 +11,19 @@ PATH_2 = r"C:\Users\alexw\Documents\Git\AI-WORK\Advanced-Trading\simple_heuritic
 dataframe_2 = opener_dataframe(PATH_2)
 
 dataframe = pd.merge(dataframe, dataframe_2, on='open_date', how='inner')
+print(dataframe.columns)
+def heikenashi(df):
+    df['HA_Close'] = (df['open_price_x'] + df['high'] + df['low'] + df['close_x']) / 4
+    df['HA_Open'] = (df['open_price_x'].shift(1) + df['close_x'].shift(1)) / 2
+    df.iloc[0, df.columns.get_loc("HA_Open")] = (df.iloc[0]['open_price_x'] + df.iloc[0]['close_x'])/2
+    df['HA_High'] = df[['high', 'low', 'HA_Open', 'HA_Close']].max(axis=1)
+    df['HA_Low'] = df[['high', 'low', 'HA_Open', 'HA_Close']].min(axis=1)
+    #df = df.drop(['Open', 'High', 'Low', 'Close'], axis=1)  # remove old columns
+    #df = df.rename(columns={"HA_Open": "Open", "HA_High": "High", "HA_Low": "Low", "HA_Close": "Close", "Volume": "Volume"})
+    #df = df[['Open', 'High', 'Low', 'Close', 'Volume']]  # reorder columns
+    return df
+dataframe = heikenashi(dataframe)
+
 
 """
 windows = 2
@@ -25,15 +38,7 @@ dataframe['MACD_Line'], dataframe['Signal_Line'], dataframe['MACD_Histogram'] = 
 dataframe['Upper_Band'], dataframe['Lower_Band'] = compute_bollinger_bands(dataframe, window=windows, num_std=2)
 """
 
-columns = ['open_price_x',"high","low"]
-data_x = dataframe[columns]
-print(data_x.head(5))
 
-# Normalization
-
-# data_x = (data_x - data_x.shift(1))/(data_x.shift(1))*100
-
-print(data_x.head())
 from ta.momentum import KAMAIndicator
 dataframe['close_ema'] = dataframe['close_x'].ewm(span=1, adjust=False).mean()
 dataframe["KAMAIndicator"] = KAMAIndicator(dataframe["close_ema"]).kama()
@@ -50,21 +55,27 @@ dataframe['bb_bbm'] = indicator_bb.bollinger_mavg()
 dataframe['bb_bbh'] = indicator_bb.bollinger_hband()
 dataframe['bb_bbl'] = indicator_bb.bollinger_lband()
 
-columns = ['open_price_x',"high","low","AwesomeOscillatorIndicator","bb_bbm",'bb_bbh','bb_bbl',"KAMAIndicator"]
+columns = ['open_price_x',"high","low","AwesomeOscillatorIndicator","bb_bbm",'bb_bbh','bb_bbl',"KAMAIndicator","HA_Open","HA_Close","HA_High","HA_Low"]
 data_x = dataframe[columns]
 
 #Creation des dataframes
 X = []
 Y = []
-window_size = 32
+window_size = 24
 b, a = signal.butter(8, 0.125)
 from tqdm import tqdm
-for i in tqdm(range(window_size+10,len(data_x)-100)):#500)): #
+for i in tqdm(range(window_size+10,len(data_x)-100)):#500)):
     if (data_x.iloc[i-window_size:i]).isnull().values.any() == False:
         windows = data_x.iloc[i-window_size:i].to_numpy()
         open_price_signal = data_x["open_price_x"].iloc[i - window_size:i].values
         high_price_signal = data_x["high"].iloc[i - window_size:i].values
         low_price_signal = data_x["low"].iloc[i - window_size:i].values
+
+        open_ha_price_signal = data_x["HA_Open"].iloc[i - window_size:i].values
+        close_ha_price_signal = data_x["HA_Close"].iloc[i - window_size:i].values
+        high_ha_price_signal = data_x["HA_High"].iloc[i - window_size:i].values
+        low_ha_price_signal = data_x["HA_Low"].iloc[i - window_size:i].values
+
         price_kamai = data_x["KAMAIndicator"].iloc[i - window_size:i].values
         price_awesome_oscillator = data_x["AwesomeOscillatorIndicator"].iloc[i - window_size:i].values
         price_bb_bbm = data_x["bb_bbm"].iloc[i - window_size:i].values
@@ -74,6 +85,7 @@ for i in tqdm(range(window_size+10,len(data_x)-100)):#500)): #
         high_price_new_signal = signal.filtfilt(b, a, high_price_signal, padlen=window_size - 1)
         low_price_new_signal = signal.filtfilt(b, a, low_price_signal, padlen=window_size - 1)
         concatenated_array = np.column_stack((open_price_signal, high_price_signal,low_price_signal,
+                                              open_ha_price_signal,close_ha_price_signal,high_ha_price_signal,low_ha_price_signal,
                                               price_kamai, price_awesome_oscillator, price_bb_bbm, price_bb_bbh,
                                               price_bb_bbl,
                                               low_price_new_signal,high_price_new_signal,open_price_new_signal))
@@ -105,7 +117,7 @@ es = tf.keras.callbacks.EarlyStopping(monitor="val_loss", mode="min", patience=1
 validation_data=(X_test, Y_test)
 import plotly.express as px
 callbacks = [es]
-epochs = 7
+epochs = 15
 dict_test = {"X_test":X_test,"Y_test":Y_test}
 nb_test = len(X_test)
 import plotly.graph_objects as go
