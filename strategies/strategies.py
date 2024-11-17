@@ -1,6 +1,6 @@
 from simple_heuritic_tradings.indicators.list_indicators import *
 from simple_heuritic_tradings.utils.utils_df import  *
-PATH = r"C:\Users\alexw\Documents\Git\AI-WORK\Advanced-Trading\simple_heuritic_tradings\Data\ETHUSDT-5m.zip"
+PATH = None
 dataframe = opener_dataframe(PATH)
 windows = 2
 dataframe[f'SMA_{windows}'] = compute_sma(dataframe,windows)
